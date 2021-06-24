@@ -1,20 +1,20 @@
-const app = require('./app')
+import { app } from './src/app.js'
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
-async function start ()  {
-    console.log('Iniciando servidor')
-    try {
-        while (true) {
-            await app()
-            await sleep(2000)
-        } 
-    } catch (error) {
-        console.error('Houve um erro na aplicação.')
-        console.error(error)
+async function start() {
+  console.log('Iniciando servidor')
+  try {
+    while (true) {
+      await app()
+      await sleep(2000)
     }
+  } catch (error) {
+    console.error('Houve um erro na aplicação.')
+    console.error(error)
+  }
 }
 
 start()
