@@ -17,11 +17,11 @@ export class Bot {
       this.client.login(this.token)
     })
 
-  alertBlock = ({ number, reward }) => {
+  alertBlock = ({ number, reward, isUncle }) => {
     try {
       const message = new Discord.MessageEmbed()
         .setColor('#0078D7')
-        .setTitle('🎉 New Block 🎉')
+        .setTitle(`🎉 New ${isUncle ? 'Uncle' : 'Block'} 🎉`)
         .setURL(`https://etherscan.io/block/${number}`)
         .setDescription(`_#${number}_\n\n💰 Reward: **${reward}** ETH`)
       return this.channel.send(message)

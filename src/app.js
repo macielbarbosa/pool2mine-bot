@@ -1,50 +1,49 @@
-import { PT_CHAT_ID, INFO_CHAT_ID, EN_CHAT_ID } from '../private.js'
-import { getBlock, getCurrentBlockNumber } from './block.js'
-import { enumLanguage, strings } from './strings.js'
-import { sendMessage } from './telegram.js'
+import { DISCORD_BOT_TOKEN } from '../private.js'
+import { getBlock, getBlockNumber } from './block.js'
+import { Bot } from './discord.js'
+import Telegram from './telegram.js'
+import { formatReward, sleep } from './utils.js'
 
 const WALLET = '0xcd7b9e2b957c819000b1a8107130f786636c5ccc'
 
-var lastBlockNumber = 0
+var blockNumber = 0
 
-const getNewBlockMessage = ({ number, reward }, language) =>
-  `🎉 <b>${strings.newBlock[language]} 🎉</b>
-
-🔷 ${strings.block[language]}: <a href='https://etherscan.io/block/${number}'>${number}</a>
-💰 ${strings.reward[language]}: <b>${reward}</b> ETH`
-
-const announceNewBlock = async (block) => {
-  const englishNewBlockMessage = getNewBlockMessage(block, enumLanguage.en)
-  const portugueseNewBlockMessage = getNewBlockMessage(block, enumLanguage.pt)
-  await sendMessage(englishNewBlockMessage, EN_CHAT_ID)
-  await sendMessage(portugueseNewBlockMessage, PT_CHAT_ID)
-  await sendMessage(portugueseNewBlockMessage, INFO_CHAT_ID)
-}
-
-const checkNewBlock = async (wallet) => {
+const checkNewBlock = async () => {
   try {
-    const currentBlockNumber = await getCurrentBlockNumber()
-    if (currentBlockNumber === lastBlockNumber) return null
-    lastBlockNumber = currentBlockNumber
-    const block = await getBlock(lastBlockNumber)
-    if (block.blockMiner === wallet) {
-      console.log('New block:', block)
-      return { number: block.blockNumber, reward: (block.blockReward / Math.pow(10, 18)).toFixed(3) }
+    const block = await getBlock(blockNumber)
+    if (!block.blockNumber) return null
+    blockNumber++
+    if (block.blockMiner === WALLET) {
+      console.log('Novo bloco:', block)
+      return { number: block.blockNumber, reward: formatReward(block.blockReward) }
+    }
+    const uncle = block.uncles.find(({ miner }) => miner === WALLET)
+    if (uncle) {
+      console.log('Novo uncle:', block)
+      return { number: block.blockNumber, reward: formatReward(uncle.blockreward), isUncle: true }
     }
   } catch (error) {
-    console.warn('Erro ao verificar o último bloco.')
+    console.warn('Erro ao verificar o último bloco.', error)
     return null
   }
 }
 
-export const app = async (DiscordBot) => {
+export const app = async () => {
   try {
-    const block = await checkNewBlock(WALLET)
-    if (block) {
-      await announceNewBlock(block)
-      await DiscordBot.alertBlock(block)
+    const DiscordBot = new Bot(DISCORD_BOT_TOKEN)
+    await DiscordBot.login()
+    blockNumber = await getBlockNumber()
+    console.log('Bloco inicial', blockNumber)
+    if (!blockNumber) throw new Error('Erro ao obter o blockNumber.')
+    while (true) {
+      const block = await checkNewBlock()
+      if (block) {
+        await Telegram.alertBlock(block)
+        await DiscordBot.alertBlock(block)
+      }
+      await sleep(3000)
     }
   } catch (error) {
-    console.warn('Erro ao executar o app.')
+    console.warn('Erro ao executar o app.', error)
   }
 }

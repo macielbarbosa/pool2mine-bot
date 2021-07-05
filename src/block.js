@@ -3,7 +3,7 @@ import { ETHERSCAN_TOKEN } from '../private.js'
 
 const ETHERSCAN_API = 'https://api.etherscan.io/api'
 
-export const getCurrentBlockNumber = async () => {
+export const getBlockNumber = async () => {
   const timestamp = String(Date.now()).substring(0, 10)
   const {
     data: { result: number },

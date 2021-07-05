@@ -8,6 +8,10 @@ export const strings = Object.freeze({
     en: 'NEW BLOCK',
     pt: 'NOVO BLOCO',
   },
+  newUncle: {
+    en: 'NEW UNCLE',
+    pt: 'NOVO UNCLE',
+  },
   block: {
     en: 'Block',
     pt: 'Bloco',
