@@ -1,5 +1,5 @@
 {
-  "name": "pool2minebot",
+  "name": "pool2mine-bot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,8 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "assert": "^2.0.0",
     "axios": "^0.21.1",
-    "discord.js": "^12.5.3"
+    "discord.js": "^12.5.3",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "mongodb": "^3.6.10",
+    "nested-property": "^4.0.0",
+    "uuid": "^8.3.2"
   },
   "type": "module"
 }
