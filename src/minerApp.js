@@ -20,7 +20,7 @@ export const minerApp = async (DB) => {
           )
           await sendMessage('The wallet has been <b>removed</b>', chat.id)
         } else {
-          const countWallet = await DB.collection('wallet').count({ _id: text })
+          const countWallet = await DB.collection('wallet').countDocuments({ _id: text })
           if (!countWallet) {
             await DB.collection('wallet').insertOne({ _id: text, shares: 0, balance: 0, workers: [], hashrate: 0 })
           }
@@ -36,7 +36,7 @@ export const minerApp = async (DB) => {
           .toArray()
         for (const { _id: wallet, workers, hashrate, shares, balance, paid } of wallets) {
           await sendMessage(
-            `<b>${wallet}</b>
+            `<b>${wallet.replace(wallet.substr(9, 24), '...')}</b>
           
 Workers online: ${workers.length}
 Effective hashrate: ${hashrate}
@@ -51,9 +51,9 @@ Today paid: ${paid}`,
         await sendMessage('Coming soon', chat.id)
       } else if (text === '/help') {
         await sendMessage(
-          `0x... - <i>Submit or remove a wallet</i>
+          `0x00...00 - <i>Add or remove a wallet</i>
 /miner - <i>Miner info</i>
-/pool - <i>Pool info</i>
+/pool - <i>Pool stats</i>
 /clear - <i>Remove all wallets</i>`,
           chat.id,
         )

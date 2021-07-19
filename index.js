@@ -17,7 +17,7 @@ var lastMinutePoolUpdate
 const initConfiguration = async () => {
   try {
     console.log('Setando a configuração inicial')
-    await DiscordBot.login()
+    //await DiscordBot.login()
     //blockNumber = await getBlockNumber()
     DB = new MongoConnector()
     await DB.connect()
@@ -48,16 +48,21 @@ const shouldPoolUpdate = () => {
 }
 
 export const service = async () => {
-  console.log('Iniciando serviço')
-  await initConfiguration()
-  //setInterval(blockListener, 1000)
-  while (true) {
-    if (shouldPoolUpdate()) {
-      await poolUpdate(DB)
-      lastMinutePoolUpdate = moment().minute()
+  try {
+    console.log('Iniciando serviço')
+    await initConfiguration()
+    //setInterval(blockListener, 1000)
+    while (true) {
+      if (shouldPoolUpdate()) {
+        await poolUpdate(DB)
+        lastMinutePoolUpdate = moment().minute()
+      }
+      await minerApp(DB)
+      await sleep(1000)
     }
-    await minerApp(DB)
-    await sleep(1000)
+  } catch (error) {
+    console.log('Erro no serviço', error)
+    service()
   }
 }
 

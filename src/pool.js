@@ -16,13 +16,15 @@ export const poolUpdate = async (DB) => {
     const {
       data: { pendingShares, pendingBalance, todayPaid, performance },
     } = await axios.get(URL_POOL2MINE_MINER + wallet._id)
-    const workers = Object.keys(performance.workers)
+    const workers = !performance ? [] : Object.keys(performance.workers)
     const workersDown = _.difference(wallet.workers, workers)
     if (workersDown.length > 0) {
       const users = await DB.collection('user').find({ wallets: wallet._id }).toArray()
       await notifyUsersWorkersDown(users, workersDown)
     }
-    const hashrate = Object.values(performance.workers).reduce((total, { hashrate }) => total + hashrate, 0)
+    const hashrate = !performance
+      ? 0
+      : Object.values(performance.workers).reduce((total, { hashrate }) => total + hashrate, 0)
     await DB.collection('wallet').updateOne(
       { _id: wallet._id },
       {
