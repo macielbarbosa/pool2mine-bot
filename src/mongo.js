@@ -27,7 +27,7 @@ export default class MongoConnector {
     const existingUser = await this.collection('user').findOne({ _id })
     if (existingUser) return existingUser
     else {
-      const user = { _id, wallets: [] }
+      const user = { _id, wallets: [], notify: true }
       await this.collection('user').insertOne(user)
       return user
     }

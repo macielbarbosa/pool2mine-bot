@@ -13,6 +13,7 @@ export const sendMessage = async (text, chat_id) => {
     })
   } catch (error) {
     console.warn('Telegram - Falha ao enviar mensagem. chat_id =', chat_id)
+    throw error
   }
 }
 

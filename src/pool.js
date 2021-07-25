@@ -1,17 +1,42 @@
 import axios from 'axios'
 import _ from 'lodash'
-import { URL_POOL2MINE_MINER } from './constants.js'
+import { URL_POOL2MINE_MINER, URL_POOL2MINE_POOL } from './constants.js'
 import { sendMessage } from './telegram.js'
 
+const getPoolStats = async () => {
+  const {
+    data: {
+      pools: [
+        {
+          sharesCount,
+          poolStats: { poolHashrate, connectedMiners },
+        },
+      ],
+    },
+  } = await axios.get(URL_POOL2MINE_POOL)
+  return {
+    shares: sharesCount,
+    hashrate: (poolHashrate / Math.pow(10, 9)).toFixed(3) + ' GH/s',
+    miners: connectedMiners,
+  }
+}
+
 const notifyUsersWorkersDown = async (users, workers) => {
-  for (const { _id: chatId } of users)
-    for (const worker of workers) {
-      await sendMessage(`⚠️ <b>${worker}</b> worker is down!`, chatId)
+  for (const { _id: chatId } of users) {
+    try {
+      for (const worker of workers) {
+        await sendMessage(`⚠️ <b>${worker}</b> worker is down!\n\n/notify - Disable notifications`, chatId)
+      }
+    } catch (_) {
+      console.warn('Erro ao notificar a queda de worker ao', chatId)
     }
+  }
 }
 
 export const poolUpdate = async (DB) => {
   const wallets = await DB.collection('wallet').find({}).toArray()
+  const poolStats = await getPoolStats()
+  await DB.setData(poolStats)
   for (const wallet of wallets) {
     const {
       data: { pendingShares, pendingBalance, todayPaid, performance },
@@ -19,7 +44,7 @@ export const poolUpdate = async (DB) => {
     const workers = !performance ? [] : Object.keys(performance.workers)
     const workersDown = _.difference(wallet.workers, workers)
     if (workersDown.length > 0) {
-      const users = await DB.collection('user').find({ wallets: wallet._id }).toArray()
+      const users = await DB.collection('user').find({ wallets: wallet._id, notify: true }).toArray()
       await notifyUsersWorkersDown(users, workersDown)
     }
     const hashrate = !performance
