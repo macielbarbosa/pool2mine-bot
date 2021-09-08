@@ -1,5 +1,4 @@
 import mongodb from 'mongodb'
-import { newId } from './utils.js'
 
 const URL = 'mongodb://localhost:27017'
 const DB_NAME = 'pool2mine'

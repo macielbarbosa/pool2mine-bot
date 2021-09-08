@@ -1,24 +1,19 @@
 import moment from 'moment'
 import _ from 'lodash'
 
-import { checkBlock, getBlockNumber } from './src/etherscan.js'
-import { DiscordBot } from './src/discord.js'
-import * as Telegram from './src/telegram.js'
 import MongoConnector from './src/mongo.js'
 import { sleep } from './src/utils.js'
 import { minerApp } from './src/minerApp.js'
 import { poolUpdate } from './src/pool.js'
 
-var Pool2mineBot
+const POOL_UPDATE_MINUTES = 2
+
 var DB
-var blockNumber
 var lastMinutePoolUpdate
 
 const initConfiguration = async () => {
   try {
     console.log('Setando a configuração inicial')
-    //await DiscordBot.login()
-    //blockNumber = await getBlockNumber()
     DB = new MongoConnector()
     await DB.connect()
     await poolUpdate(DB)
@@ -28,30 +23,15 @@ const initConfiguration = async () => {
   }
 }
 
-const blockListener = async () => {
-  let mined
-  try {
-    mined = await checkBlock(blockNumber)
-  } catch (_) {
-  } finally {
-    if (mined) {
-      await Telegram.alertBlock(mined)
-      await Pool2mineBot.alertBlock(mined)
-    }
-    blockNumber++
-  }
-}
-
 const shouldPoolUpdate = () => {
   const minute = moment().minute()
-  return minute !== lastMinutePoolUpdate && minute % 2 === 0
+  return minute !== lastMinutePoolUpdate && minute % POOL_UPDATE_MINUTES === 0
 }
 
 export const service = async () => {
   try {
     console.log('Iniciando serviço')
     await initConfiguration()
-    //setInterval(blockListener, 1000)
     while (true) {
       if (shouldPoolUpdate()) {
         await poolUpdate(DB)
