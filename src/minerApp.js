@@ -1,6 +1,6 @@
 import { getPrivateUpdates, sendMessage } from './telegram.js'
 
-const isWallet = (text) => text.substr(0, 2) === '0x' && text.length === 42
+const isWallet = (text) => text && text.substr(0, 2) === '0x' && text.length === 42
 
 export const minerApp = async (DB) => {
   let lastHandledUpdateId = null
@@ -51,7 +51,7 @@ export const minerApp = async (DB) => {
 
 📄 Shares: <b>${shares}</b>
 💸 Balance: <b>${balance}</b>
-💵 Today paid: <b>${paid}</b>`,
+💵 Paid today: <b>${paid}</b>`,
               chat.id,
             )
           }
