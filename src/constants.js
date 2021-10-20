@@ -7,3 +7,5 @@ export const URL_TELEGRAM_GET_UPDATES = URL_TELEGRAM_BASE + '/getUpdates'
 const URL_POOL2MINE_BASE = `https://api.pool2mine.net/api`
 export const URL_POOL2MINE_MINER = URL_POOL2MINE_BASE + '/pools/eth/miners/'
 export const URL_POOL2MINE_POOL = URL_POOL2MINE_BASE + '/pools'
+
+export const defaultRequestTimeout = 3000

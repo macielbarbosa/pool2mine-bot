@@ -1,6 +1,6 @@
 import axios from 'axios'
 import nested from 'nested-property'
-import { URL_TELEGRAM_GET_UPDATES, URL_TELEGRAM_SEND_MESSAGE } from './constants.js'
+import { defaultRequestTimeout, URL_TELEGRAM_GET_UPDATES, URL_TELEGRAM_SEND_MESSAGE } from './constants.js'
 
 export const sendMessage = async (text, chat_id) => {
   try {
@@ -21,7 +21,9 @@ export const getPrivateUpdates = async (offset) => {
       data: { result: updates },
     } = await axios.get(URL_TELEGRAM_GET_UPDATES, {
       params: { offset, allowed_updates: ['message'] },
+      timeout: defaultRequestTimeout,
     })
+    console.log('Mensagens', updates.length)
     return updates.filter((update) => nested.get(update, 'message.chat.type') === 'private')
   } catch (_) {
     console.error('Erro ao obter os updates do Telegram')
