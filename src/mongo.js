@@ -13,8 +13,8 @@ export default class MongoConnector {
     const that = this
     return new Promise((resolve, reject) => {
       mongodb.MongoClient.connect(URL, { useUnifiedTopology: true }, async function (error, client) {
-        if (error) reject('Falha ao conectar ao DB')
-        console.log('Conectado ao DB')
+        if (error) reject('[WARN] Fall connecting database')
+        console.log('[LOG] Connected to database')
         that.db = client.db(DB_NAME)
         that.data = await that.getData()
         resolve()

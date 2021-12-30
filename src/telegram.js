@@ -10,7 +10,7 @@ export const sendMessage = async (text, chat_id) => {
       parse_mode: 'HTML',
     })
   } catch (error) {
-    console.warn('Telegram - Falha ao enviar mensagem. chat_id =', chat_id)
+    console.warn('[WARN] Fail on send message to user', chat_id)
     throw error
   }
 }
@@ -23,10 +23,13 @@ export const getPrivateUpdates = async (offset) => {
       params: { offset, allowed_updates: ['message'] },
       timeout: defaultRequestTimeout,
     })
-    console.log('Mensagens', updates.length)
-    return updates.filter((update) => nested.get(update, 'message.chat.type') === 'private')
+    console.log('[INFO] Number of messages:', updates.length)
+    return [
+      updates.filter((update) => nested.get(update, 'message.chat.type') === 'private'),
+      updates && updates.length > 0 && updates[updates.length - 1],
+    ]
   } catch (_) {
-    console.error('Erro ao obter os updates do Telegram')
-    return []
+    console.error('[LOG] Error getting Telegram updates. Retrying... ')
+    return [[], false]
   }
 }

@@ -28,7 +28,7 @@ const notifyUsersWorkersDown = async (users, workers) => {
         await sendMessage(`⚠️ <b>${worker}</b> worker is down!\n\n/notify - Disable notifications`, chatId)
       }
     } catch (_) {
-      console.warn('Erro ao notificar a queda de worker ao', chatId)
+      console.warn('[LOG] Error notifying worker down to user', chatId)
     }
   }
 }
@@ -68,6 +68,6 @@ export const poolUpdate = async (DB) => {
       )
     }
   } catch (_) {
-    console.warn('Erro no poolUpdate')
+    console.warn('[WARN] Error update pool data')
   }
 }

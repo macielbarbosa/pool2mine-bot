@@ -6,6 +6,8 @@ import { sleep } from './src/utils.js'
 import { minerApp } from './src/minerApp.js'
 import { poolUpdate } from './src/pool.js'
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 const POOL_UPDATE_MINUTES = 2
 
 var DB
@@ -13,12 +15,12 @@ var lastMinutePoolUpdate
 
 const initConfiguration = async () => {
   try {
-    console.log('Setando a configuração inicial')
+    console.log('[LOG] Setting initial configuration')
     DB = new MongoConnector()
     await DB.connect()
     await poolUpdate(DB)
   } catch (error) {
-    console.error('Erro ao obter a configuração inicial')
+    console.error('[WARN] Error getting initial configuration')
     throw error
   }
 }
@@ -30,7 +32,7 @@ const shouldPoolUpdate = () => {
 
 export const service = async () => {
   try {
-    console.log('Iniciando serviço')
+    console.log('[LOG] Starting service')
     await initConfiguration()
     while (true) {
       if (shouldPoolUpdate()) {
@@ -41,7 +43,7 @@ export const service = async () => {
       await sleep(1000)
     }
   } catch (error) {
-    console.log('Erro no serviço', error)
+    console.log('[WARN] Service error. Restarting...')
     service()
   }
 }

@@ -6,7 +6,10 @@ export const minerApp = async (DB) => {
   let lastHandledUpdateId = null
   try {
     const { telegramOffset, hashrate, miners } = await DB.getData()
-    const updates = await getPrivateUpdates(telegramOffset)
+    const [updates, lastInvalidUpdate] = await getPrivateUpdates(telegramOffset)
+    if (updates.length === 0 && lastInvalidUpdate) {
+      lastHandledUpdateId = lastInvalidUpdate.update_id
+    }
     for (const update of updates) {
       const {
         message: { chat, text },
@@ -81,8 +84,8 @@ export const minerApp = async (DB) => {
       }
       lastHandledUpdateId = update.update_id
     }
-  } catch (error) {
-    console.error('Erro ao executar o telegramBot', error)
+  } catch (_) {
+    console.error('[WARN] Error processing message')
   } finally {
     if (lastHandledUpdateId) await DB.setData({ telegramOffset: lastHandledUpdateId + 1 })
   }
